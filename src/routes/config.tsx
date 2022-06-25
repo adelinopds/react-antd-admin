@@ -1,5 +1,4 @@
-import { FC } from 'react';
-import { Route } from 'react-router-dom';
+import { FC, ReactElement } from 'react';
 import { RouteProps } from 'react-router';
 import PrivateRoute from './pravateRoute';
 import { useIntl } from 'react-intl';
@@ -13,13 +12,14 @@ export interface WrapperRouteProps extends RouteProps {
 
 const WrapperRouteComponent: FC<WrapperRouteProps> = ({ titleId, auth, ...props }) => {
   const { formatMessage } = useIntl();
-  const WitchRoute = auth ? PrivateRoute : Route;
+
   if (titleId) {
     document.title = formatMessage({
-      id: titleId
+      id: titleId,
     });
   }
-  return <WitchRoute {...props} />;
+
+  return auth ? <PrivateRoute {...props} /> : (props.element as ReactElement);
 };
 
 export default WrapperRouteComponent;

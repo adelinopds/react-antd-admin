@@ -13,8 +13,9 @@ export interface MyAsideProps extends Omit<TreeProps, 'treeData'> {
 
 const MyAside: FC<MyAsideProps> = props => {
   const { options, header, footer, ...rest } = props;
+
   return (
-    <div css={styles}>
+    <div css={styles} className="bg-2">
       {header && (
         <div className="header">
           {header}
@@ -36,7 +37,6 @@ export default MyAside;
 
 const styles = css`
   padding: 8px;
-  background-color: #ffffff;
   margin-right: 8px;
   width: 200px;
   height: 100%;

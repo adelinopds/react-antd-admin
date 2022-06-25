@@ -15,5 +15,8 @@ export const zhCN_globalTips = {
   'gloabal.tips.modify': '修改',
   'gloabal.tips.search': '搜索',
   'gloabal.tips.reset': '重置',
-  'gloabal.tips.deleteConfirm': '确定要删除此条数据吗？'
+  'gloabal.tips.deleteConfirm': '确定要删除此条数据吗？',
+  'gloabal.tips.loading': '加载中...',
+  'gloabal.tips.theme.darkTooltip': '切换至深色主题',
+  'gloabal.tips.theme.lightTooltip': '切换至浅色主题',
 };

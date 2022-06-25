@@ -1,25 +1,26 @@
-import { FC, useState, useEffect } from 'react';
+import { FC } from 'react';
 import { Menu } from 'antd';
 import { MenuList } from '../../interface/layout/menu.interface';
-import { useNavigate, useLocation } from 'react-router-dom';
+import { useNavigate } from 'react-router-dom';
 import { CustomIcon } from './customIcon';
-import { useAppDispatch, useAppState } from 'stores';
-import { setUserItem } from 'stores/user.store';
-import { addTag } from 'stores/tags-view.store';
+import { useDispatch, useSelector } from 'react-redux';
+import { setUserItem } from '@/stores/user.store';
 
 const { SubMenu, Item } = Menu;
 
 interface MenuProps {
   menuList: MenuList;
+  openKey?: string;
+  onChangeOpenKey: (key?: string) => void;
+  selectedKey: string;
+  onChangeSelectedKey: (key: string) => void;
 }
 
-const MenuComponent: FC<MenuProps> = ({ menuList }) => {
-  const [openKeys, setOpenkeys] = useState<string[]>([]);
-  const [selectedKeys, setSelectedKeys] = useState<string[]>([]);
-  const { collapsed, device, locale } = useAppState(state => state.user);
-  const dispatch = useAppDispatch();
+const MenuComponent: FC<MenuProps> = props => {
+  const { menuList, openKey, onChangeOpenKey, selectedKey, onChangeSelectedKey } = props;
+  const { device, locale } = useSelector(state => state.user);
   const navigate = useNavigate();
-  const { pathname } = useLocation();
+  const dispatch = useDispatch();
 
   const getTitie = (menu: MenuList[0]) => {
     return (
@@ -30,58 +31,40 @@ const MenuComponent: FC<MenuProps> = ({ menuList }) => {
     );
   };
 
-  const onMenuClick = (menu: MenuList[0]) => {
-    if (menu.path === pathname) return;
-    const { key, label, path } = menu;
-    setSelectedKeys([key]);
+  const onMenuClick = (path: string) => {
+    onChangeSelectedKey(path);
+    navigate(path);
     if (device !== 'DESKTOP') {
       dispatch(setUserItem({ collapsed: true }));
     }
-    dispatch(
-      addTag({
-        id: key,
-        label,
-        path,
-        closable: true
-      })
-    );
-    navigate(path);
   };
-
-  useEffect(() => {
-    setSelectedKeys([pathname]);
-    setOpenkeys(collapsed ? [] : ['/' + pathname.split('/')[1]]);
-  }, [collapsed, pathname]);
 
   const onOpenChange = (keys: string[]) => {
     const key = keys.pop();
 
-    setOpenkeys(key ? [key] : []);
+    onChangeOpenKey(key);
   };
 
   return (
     <Menu
       mode="inline"
       theme="light"
-      selectedKeys={selectedKeys}
-      openKeys={openKeys}
-      onOpenChange={onOpenChange as any}
-      className="layout-page-sider-menu"
+      selectedKeys={[selectedKey]}
+      openKeys={openKey ? [openKey] : []}
+      onOpenChange={onOpenChange}
+      onSelect={k => onMenuClick(k.key)}
+      className="layout-page-sider-menu text-2"
     >
-      {menuList?.map(menu =>
+      {menuList.map(menu =>
         menu.children ? (
-          <SubMenu key={menu.path} title={getTitie(menu)}>
+          <SubMenu key={menu.code} title={getTitie(menu)}>
             {menu.children.map(child => (
-              <Item key={child.path} onClick={() => onMenuClick(child)}>
-                {child.label[locale]}
-              </Item>
+              <Item key={child.path}>{child.label[locale]}</Item>
             ))}
           </SubMenu>
         ) : (
-          <Item key={menu.path} onClick={() => onMenuClick(menu)}>
-            {getTitie(menu)}
-          </Item>
-        )
+          <Item key={menu.path}>{getTitie(menu)}</Item>
+        ),
       )}
     </Menu>
   );

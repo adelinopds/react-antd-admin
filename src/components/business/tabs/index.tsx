@@ -15,6 +15,7 @@ export interface MyTabsProps extends TabsProps {
 
 const BaseTabs: FC<MyTabsProps> = props => {
   const { options, children, ...rest } = props;
+
   return (
     <Tabs {...rest} css={styles}>
       {options ? options.map(option => <TabPane {...option} tab={option.label} key={option.value} />) : children}
@@ -27,7 +28,6 @@ const MyTabs = Object.assign(BaseTabs, Tabs);
 export default MyTabs;
 
 const styles = css`
-  background-color: #fff;
   padding: 0 20px;
   box-shadow: 0 10px 10px -10px rgb(0 0 0 / 10%);
   height: 62px;

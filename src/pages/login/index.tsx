@@ -2,28 +2,29 @@ import { FC } from 'react';
 import { Button, Checkbox, Form, Input } from 'antd';
 import './index.less';
 import { useNavigate, useLocation } from 'react-router-dom';
-import { LoginParams } from 'interface/user/login';
-import { loginAsync } from 'stores/user.store';
-import { useAppDispatch } from 'stores';
-import { Location } from 'history';
-import { formatSearch } from 'utils/formatSearch';
+import { LoginParams } from '@/interface/user/login';
+import { loginAsync } from '@/stores/user.store';
+import { useDispatch } from 'react-redux';
+import { formatSearch } from '@/utils/formatSearch';
 
 const initialValues: LoginParams = {
   username: 'guest',
-  password: 'guest'
+  password: 'guest',
   // remember: true
 };
 
 const LoginForm: FC = () => {
   const navigate = useNavigate();
-  const location = useLocation() as Location<{ from: string }>;
-  const dispatch = useAppDispatch();
+  const location = useLocation();
+  const dispatch = useDispatch();
 
   const onFinished = async (form: LoginParams) => {
     const res = dispatch(await loginAsync(form));
+
     if (!!res) {
       const search = formatSearch(location.search);
       const from = search.from || { pathname: '/' };
+
       navigate(from);
     }
   };

@@ -1,18 +1,18 @@
 import { FC } from 'react';
-import { Route, useNavigate } from 'react-router-dom';
+import { useNavigate } from 'react-router-dom';
 import { Result, Button } from 'antd';
-import { useLocale } from 'locales';
+import { useLocale } from '@/locales';
 import { RouteProps, useLocation } from 'react-router';
-import { useAppState } from 'stores';
+import { useSelector } from 'react-redux';
 
 const PrivateRoute: FC<RouteProps> = props => {
-  const { logged } = useAppState(state => state.user);
+  const { logged } = useSelector(state => state.user);
   const navigate = useNavigate();
   const { formatMessage } = useLocale();
   const location = useLocation();
 
   return logged ? (
-    <Route {...props} />
+    (props.element as React.ReactElement)
   ) : (
     <Result
       status="403"

@@ -2,23 +2,24 @@ import { FC, useCallback, useEffect } from 'react';
 import { Tabs } from 'antd';
 import { useNavigate, useLocation } from 'react-router-dom';
 import TagsViewAction from './tagViewAction';
-import { useAppDispatch, useAppState } from 'stores';
-import { addTag, removeTag, setActiveTag } from 'stores/tags-view.store';
+import { useDispatch, useSelector } from 'react-redux';
+import { addTag, removeTag, setActiveTag } from '@/stores/tags-view.store';
 
 const { TabPane } = Tabs;
 
 const TagsView: FC = () => {
-  const { tags, activeTagId } = useAppState(state => state.tagsView);
-  const { menuList, locale } = useAppState(state => state.user);
-  const dispatch = useAppDispatch();
+  const { tags, activeTagId } = useSelector(state => state.tagsView);
+  const { menuList, locale } = useSelector(state => state.user);
+  const dispatch = useDispatch();
   const navigate = useNavigate();
   const location = useLocation();
 
   // onClick tag
   const onChange = (key: string) => {
-    const tag = tags.find(tag => tag.id === key);
+    const tag = tags.find(tag => tag.path === key);
+
     if (tag) {
-      setCurrentTag(tag.id);
+      setCurrentTag(tag.path);
       navigate(tag.path);
     }
   };
@@ -32,57 +33,36 @@ const TagsView: FC = () => {
     (id?: string) => {
       const tag = tags.find(item => {
         if (id) {
-          return item.id === id;
+          return item.path === id;
         } else {
           return item.path === location.pathname;
         }
       });
 
       if (tag) {
-        dispatch(setActiveTag(tag.id));
+        dispatch(setActiveTag(tag.path));
       }
     },
-    [dispatch, location.pathname, tags]
+    [dispatch, location.pathname, tags],
   );
 
   useEffect(() => {
     if (menuList.length) {
       const menu = menuList.find(m => m.path === location.pathname);
+
       if (menu) {
-        // Initializes dashboard page.
-        const dashboard = menuList[0];
         dispatch(
           addTag({
-            path: dashboard.path,
-            label: dashboard.label,
-            id: dashboard.key,
-            closable: false
-          })
-        );
-        // Initializes the tag generated for the current page
-        // Duplicate tag will be ignored in redux.
-        dispatch(
-          addTag({
-            path: menu.path,
-            label: menu.label,
-            id: menu.key,
-            closable: true
-          })
+            ...menu,
+            closable: true,
+          }),
         );
       }
     }
   }, [dispatch, location.pathname, menuList]);
 
-  //fix: remove tab route back auto
-  useEffect(() => {
-    if (tags && activeTagId) {
-      const target = tags.filter(e => e.id === activeTagId);
-      navigate(target[0].path);
-    }
-  }, [tags, activeTagId, navigate]);
-
   return (
-    <div id="pageTabs" style={{ background: '#fff', padding: '6px 4px' }}>
+    <div id="pageTabs" style={{ padding: '6px 4px' }}>
       <Tabs
         tabBarStyle={{ margin: 0 }}
         onChange={onChange}
@@ -93,7 +73,7 @@ const TagsView: FC = () => {
         tabBarExtraContent={<TagsViewAction />}
       >
         {tags.map(tag => (
-          <TabPane tab={tag.label[locale]} key={tag.id} closable={tag.closable} />
+          <TabPane tab={tag.label[locale]} key={tag.path} closable={tag.closable} />
         ))}
       </Tabs>
     </div>
